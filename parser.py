@@ -2,6 +2,7 @@ import nltk.downloader
 import nltk.tokenize
 import nltk
 import sys
+import string
 
 TERMINALS = """
 Adj -> "country" | "dreadful" | "enigmatical" | "little" | "moist" | "red"
@@ -71,8 +72,10 @@ def preprocess(sentence):
 
     words = nltk.tokenize.word_tokenize(sentence)
     lower_case_words = []
+    caracters = list(string.ascii_letters)
     for word in words:
-        lower_case_words.append(word.lower())
+        if any(caracter in caracters for caracter in word):
+            lower_case_words.append(word.lower())
     return lower_case_words
 
 
@@ -83,7 +86,11 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    raise NotImplementedError
+    chuncks = []
+    for s in tree.subtrees(lambda t : t.label() == "NP"):
+        if len(list(s.subtrees(lambda t: t.label() == "NP" and t is not s))) == 0:
+            chuncks.append(s)
+    return chuncks
 
 
 if __name__ == "__main__":
